@@ -30,10 +30,10 @@ bot.action("post", async (ctx) => {
 });
 
 bot.action("edit", async (ctx) => {
-  post = await openai.reGeneratePost(await getPost());
+  ctx.deleteMessage(msg.id);
+  post = await openai.reGeneratePost();
   const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
   msg.id = msgId;
-  ctx.deleteMessage(msg.id);
 });
 
 bot.action("decline", async (ctx) => {
