@@ -28,11 +28,14 @@ bot.action("post", async (ctx) => {
   bot.telegram.sendMessage(channelID, post);
   ctx.deleteMessage(msg.id);
 });
+
 bot.action("edit", async (ctx) => {
-  post = "123";
-  bot.telegram.sendMessage(channelID, post);
-  ctx.deleteMessage(msg.id);
+  chatId = ctx.chat.id;
+  post = await openai.reGeneratePost(await getPost());
+  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  msg.id = msgId;
 });
+
 bot.action("decline", async (ctx) => {
   post = "";
   ctx.deleteMessage(msg.id);
