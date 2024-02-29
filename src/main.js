@@ -1,5 +1,4 @@
 import { Telegraf, session } from "telegraf";
-import { message } from "telegraf/filters";
 import config from "config";
 import { adminCheck } from "./utils.js";
 import { getMainMenu } from "./keyboard.js";
@@ -17,7 +16,7 @@ bot.use(adminCheck);
 bot.use(session());
 
 bot.start(async (ctx) => {
-  ctx.reply("Hi");
+  ctx.reply("Бот запущен");
   chatId = ctx.chat.id;
   post = await openai.generatePost(await getPost());
   const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
@@ -41,8 +40,18 @@ bot.action("decline", async (ctx) => {
   ctx.deleteMessage(msg.id);
 });
 
-bot.on(message("text"), async (ctx) => {
-  bot.telegram.sendMessage(channelID, ctx.message.text);
+// test command
+bot.command("prompt", (ctx) => {
+  const data = ctx.message.text.split(" ").slice(1).join(" ");
+  openai.changePrompt(data);
+  ctx.reply("Ваш промпт: " + data);
+});
+
+// test command
+bot.command("getPost", async () => {
+  post = await openai.generatePost(await getPost());
+  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  msg.id = msgId;
 });
 
 setInterval(async () => {
@@ -51,7 +60,7 @@ setInterval(async () => {
     const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
     msg.id = msgId;
   }
-}, 6000); // 86400000 - сутки
+}, 86400000); // 86400000 - сутки
 
 bot.launch();
 

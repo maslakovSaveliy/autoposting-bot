@@ -9,10 +9,16 @@ class OpenAIService {
 
   chat = [];
 
+  prompt = "";
+
   constructor(apiKey) {
     this.openai = new OpenAI({
       apiKey,
     });
+  }
+
+  changePrompt(prompt) {
+    this.prompt = prompt;
   }
 
   async reGeneratePost() {
@@ -44,7 +50,7 @@ class OpenAIService {
         },
         {
           role: this.roles.USER,
-          content: `Тебе нужно написать новостной пост. У меня уже есть новость которую ты должен переписать:\n${post.title}.\n${post.description}.\nОтветь мне уже готовым новостным постом`,
+          content: `Тебе нужно написать новостной пост. У меня уже есть новость которую ты должен переписать:\n${post.title}.\n${post.description}.\nОтветь мне уже готовым новостным постом. ${this.prompt}`,
         },
       ];
       const res = await this.openai.chat.completions.create({
