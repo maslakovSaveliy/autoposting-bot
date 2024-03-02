@@ -2,7 +2,7 @@ import { Telegraf, session } from "telegraf";
 import config from "config";
 import { adminCheck } from "./utils.js";
 import { getMainMenu } from "./keyboard.js";
-import getPost from "./pars.js";
+import { pars } from "./pars.js";
 import { openai } from "./openai.js";
 
 const channelID = config.get("CHANNEL_ID");
@@ -18,7 +18,7 @@ bot.use(session());
 bot.start(async (ctx) => {
   ctx.reply("Бот запущен");
   chatId = ctx.chat.id;
-  post = await openai.generatePost(await getPost());
+  post = await openai.generatePost(await pars.getPost());
   const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
   msg.id = msgId;
 });
@@ -40,6 +40,12 @@ bot.action("decline", async (ctx) => {
   ctx.deleteMessage(msg.id);
 });
 
+bot.action("new", async () => {
+  post = await openai.generatePost(await pars.getNewPost());
+  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  msg.id = msgId;
+});
+
 // test command
 bot.command("prompt", (ctx) => {
   const data = ctx.message.text.split(" ").slice(1).join(" ");
@@ -47,16 +53,9 @@ bot.command("prompt", (ctx) => {
   ctx.reply("Ваш промпт: " + data);
 });
 
-// test command
-bot.command("getPost", async () => {
-  post = await openai.generatePost(await getPost());
-  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
-  msg.id = msgId;
-});
-
 setInterval(async () => {
   if (chatId !== "" || msg.id !== "") {
-    post = await openai.generatePost(await getPost());
+    post = await openai.generatePost(await pars.getPost());
     const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
     msg.id = msgId;
   }
