@@ -32,7 +32,6 @@ class Pars {
           "body > main > section > section > div"
         );
         const randomNum = Math.floor(Math.random() * 25) * 3;
-        console.log(randomNum);
         const article = elements
           .getElementsByClassName("w-full")
           [randomNum].querySelectorAll("div > div > a")[0];

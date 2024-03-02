@@ -41,6 +41,7 @@ bot.action("decline", async (ctx) => {
 });
 
 bot.action("new", async () => {
+  ctx.deleteMessage(msg.id);
   post = await openai.generatePost(await pars.getNewPost());
   const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
   msg.id = msgId;
