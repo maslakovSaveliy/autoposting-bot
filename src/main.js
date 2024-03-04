@@ -1,3 +1,5 @@
+// Добавить медиа, переписать промпт, добавить ссылки на первоисточники
+
 import { Telegraf, session } from "telegraf";
 import config from "config";
 import { adminCheck } from "./utils.js";
@@ -8,6 +10,7 @@ import { openai } from "./openai.js";
 const channelID = config.get("CHANNEL_ID");
 let chatId = "";
 let post = "";
+let news = {};
 let msg = { id: "" };
 
 const bot = new Telegraf(config.get("BOT_TOKEN"), { handlerTimeout: Infinity });
@@ -18,8 +21,13 @@ bot.use(session());
 bot.start(async (ctx) => {
   ctx.reply("Бот запущен");
   chatId = ctx.chat.id;
-  post = await openai.generatePost(await pars.getPost());
-  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  news = await pars.getPost();
+  post = await openai.generatePost(news);
+  const { msgId } = bot.telegram.sendMessage(
+    chatId,
+    `${post}\nИсточник: ${news.url}`,
+    getMainMenu()
+  );
   msg.id = msgId;
 });
 
@@ -31,7 +39,11 @@ bot.action("post", async (ctx) => {
 bot.action("edit", async (ctx) => {
   ctx.deleteMessage(msg.id);
   post = await openai.reGeneratePost();
-  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  const { msgId } = bot.telegram.sendMessage(
+    chatId,
+    `${post}\nИсточник: ${news.url}`,
+    getMainMenu()
+  );
   msg.id = msgId;
 });
 
@@ -42,8 +54,13 @@ bot.action("decline", async (ctx) => {
 
 bot.action("new", async (ctx) => {
   ctx.deleteMessage(msg.id);
-  post = await openai.generatePost(await pars.getNewPost());
-  const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+  news = await pars.getNewPost();
+  post = await openai.generatePost(news);
+  const { msgId } = bot.telegram.sendMessage(
+    chatId,
+    `${post}\nИсточник: ${news.url}`,
+    getMainMenu()
+  );
   msg.id = msgId;
 });
 
@@ -56,8 +73,13 @@ bot.command("prompt", (ctx) => {
 
 setInterval(async () => {
   if (chatId !== "" || msg.id !== "") {
-    post = await openai.generatePost(await pars.getPost());
-    const { msgId } = bot.telegram.sendMessage(chatId, post, getMainMenu());
+    news = await pars.getPost();
+    post = await openai.generatePost(news);
+    const { msgId } = bot.telegram.sendMessage(
+      chatId,
+      `${post}\nИсточник: ${news.url}`,
+      getMainMenu()
+    );
     msg.id = msgId;
   }
 }, 86400000); // 86400000 - сутки

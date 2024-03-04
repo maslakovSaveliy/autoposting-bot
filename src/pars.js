@@ -19,7 +19,12 @@ class Pars {
       })
       .catch((e) => console.log(e));
 
-    return { title: post.title, description: post.abstract };
+    return {
+      title: post.title,
+      description: post.abstract,
+      url: post.url,
+      media: post.multimedia ? post.multimedia[3] : null,
+    };
   }
 
   async getNewPost() {
@@ -31,16 +36,33 @@ class Pars {
         const elements = dom.window.document.querySelector(
           "body > main > section > section > div"
         );
+
         const randomNum = Math.floor(Math.random() * 25) * 3;
+
         const article = elements
           .getElementsByClassName("w-full")
           [randomNum].querySelectorAll("div > div > a")[0];
+
         const description = elements
           .getElementsByClassName("w-full")
           [randomNum].getElementsByClassName("hidden")[0];
+
+        const url = elements
+          .getElementsByClassName("w-full")
+          [randomNum].querySelectorAll("div > a")[0]
+          .getAttribute("href");
+
+        const img = elements
+          .getElementsByClassName("w-full")
+          [randomNum].querySelectorAll("div > a > div")[0]
+          .querySelector("img")
+          .getAttribute("src");
+
         return {
           title: article.textContent.trim(),
           description: description.textContent,
+          url: "https://mashable.com" + url,
+          media: img,
         };
       });
     return res;
