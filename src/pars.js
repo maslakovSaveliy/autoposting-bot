@@ -23,7 +23,7 @@ class Pars {
       title: post.title,
       description: post.abstract,
       url: post.url,
-      media: post.multimedia ? post.multimedia[3] : null,
+      media: post.multimedia ? post.multimedia[2] : null,
     };
   }
 

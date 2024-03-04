@@ -1,5 +1,3 @@
-// Добавить медиа, переписать промпт, добавить ссылки на первоисточники
-
 import { Telegraf, session } from "telegraf";
 import config from "config";
 import { adminCheck } from "./utils.js";
@@ -23,12 +21,20 @@ bot.start(async (ctx) => {
   chatId = ctx.chat.id;
   news = await pars.getPost();
   post = await openai.generatePost(news);
-  const { msgId } = bot.telegram.sendMessage(
-    chatId,
-    `${post}\nИсточник: ${news.url}`,
-    getMainMenu()
-  );
-  msg.id = msgId;
+  if (news.media) {
+    const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
+      caption: `${post}\n\nИсточник: ${news.url}`,
+      reply_markup: getMainMenu().reply_markup,
+    });
+    msg.id = msgId;
+  } else {
+    const { msgId } = bot.telegram.sendMessage(
+      chatId,
+      `${post}\n\nИсточник: ${news.url}`,
+      getMainMenu()
+    );
+    msg.id = msgId;
+  }
 });
 
 bot.action("post", async (ctx) => {
@@ -39,12 +45,20 @@ bot.action("post", async (ctx) => {
 bot.action("edit", async (ctx) => {
   ctx.deleteMessage(msg.id);
   post = await openai.reGeneratePost();
-  const { msgId } = bot.telegram.sendMessage(
-    chatId,
-    `${post}\nИсточник: ${news.url}`,
-    getMainMenu()
-  );
-  msg.id = msgId;
+  if (news.media) {
+    const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
+      caption: `${post}\n\nИсточник: ${news.url}`,
+      reply_markup: getMainMenu().reply_markup,
+    });
+    msg.id = msgId;
+  } else {
+    const { msgId } = bot.telegram.sendMessage(
+      chatId,
+      `${post}\n\nИсточник: ${news.url}`,
+      getMainMenu()
+    );
+    msg.id = msgId;
+  }
 });
 
 bot.action("decline", async (ctx) => {
@@ -56,12 +70,20 @@ bot.action("new", async (ctx) => {
   ctx.deleteMessage(msg.id);
   news = await pars.getNewPost();
   post = await openai.generatePost(news);
-  const { msgId } = bot.telegram.sendMessage(
-    chatId,
-    `${post}\nИсточник: ${news.url}`,
-    getMainMenu()
-  );
-  msg.id = msgId;
+  if (news.media) {
+    const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
+      caption: `${post}\n\nИсточник: ${news.url}`,
+      reply_markup: getMainMenu().reply_markup,
+    });
+    msg.id = msgId;
+  } else {
+    const { msgId } = bot.telegram.sendMessage(
+      chatId,
+      `${post}\n\nИсточник: ${news.url}`,
+      getMainMenu()
+    );
+    msg.id = msgId;
+  }
 });
 
 // test command
@@ -71,16 +93,29 @@ bot.command("prompt", (ctx) => {
   ctx.reply("Ваш промпт: " + data);
 });
 
+bot.command("defaultPrompt", (ctx) => {
+  openai.defaultPrompt();
+  ctx.reply("Установлен промпт по умолчанию: " + openai.prompt);
+});
+
 setInterval(async () => {
   if (chatId !== "" || msg.id !== "") {
     news = await pars.getPost();
     post = await openai.generatePost(news);
-    const { msgId } = bot.telegram.sendMessage(
-      chatId,
-      `${post}\nИсточник: ${news.url}`,
-      getMainMenu()
-    );
-    msg.id = msgId;
+    if (news.media) {
+      const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
+        caption: `${post}\n\nИсточник: ${news.url}`,
+        reply_markup: getMainMenu().reply_markup,
+      });
+      msg.id = msgId;
+    } else {
+      const { msgId } = bot.telegram.sendMessage(
+        chatId,
+        `${post}\n\nИсточник: ${news.url}`,
+        getMainMenu()
+      );
+      msg.id = msgId;
+    }
   }
 }, 86400000); // 86400000 - сутки
 
