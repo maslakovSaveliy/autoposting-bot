@@ -39,9 +39,11 @@ bot.start(async (ctx) => {
 
 bot.action("post", async (ctx) => {
   if (news.media) {
-    bot.telegram.sendPhoto(channelID, news.media, { caption: post });
+    bot.telegram.sendPhoto(channelID, news.media, {
+      caption: `${post}\n\nИсточник: ${news.url}`,
+    });
   } else {
-    bot.telegram.sendMessage(channelID, post);
+    bot.telegram.sendMessage(channelID, `${post}\n\nИсточник: ${news.url}`);
   }
   ctx.deleteMessage(msg.id);
 });
