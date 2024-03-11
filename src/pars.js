@@ -4,8 +4,8 @@ import { JSDOM } from "jsdom";
 
 class Pars {
   async getPost() {
-    const treds = ["technology", "business", "media"];
-    const randomNum = Math.floor(Math.random() * 3);
+    const treds = ["technology", "business"];
+    const randomNum = Math.floor(Math.random() * 2);
 
     const post = await fetch(
       `https://api.nytimes.com/svc/news/v3/content/all/${
@@ -70,8 +70,15 @@ class Pars {
         break;
 
       case 1:
+        const treds = [
+          "artificial-intelligence",
+          "apps-and-software",
+          "cryptocurrency",
+          "careers",
+        ];
+        const randomNum = Math.floor(Math.random() * 4);
         const res = await axios
-          .get("https://mashable.com/category/social-good")
+          .get(`https://mashable.com/category/${treds[randomNum]}`)
           .then((res) => {
             const curPage = res.data;
             const dom = new JSDOM(curPage);
