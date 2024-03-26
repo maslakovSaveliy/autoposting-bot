@@ -45,19 +45,19 @@ class OpenAIService {
   async generatePost(post) {
     try {
       const max_size = 4096;
-      var messageString = post.description;
+      const messageString = post.description;
 
-      var amount_sliced = messageString.length / max_size;
-      var start = 0;
-      var end = max_size;
-      var message;
-      var messagesArray = [];
+      const amount_sliced = Math.ceil(messageString.length / max_size);
+      let start = 0;
+      let end = max_size;
+      let message;
+      const messagesArray = [];
 
       for (let i = 0; i < amount_sliced; i++) {
         message = messageString.slice(start, end);
-        messages.push(message);
-        start = start + max_size;
-        end = end + max_size;
+        messagesArray.push(message);
+        start += max_size;
+        end += max_size;
       }
 
       this.chat = [
