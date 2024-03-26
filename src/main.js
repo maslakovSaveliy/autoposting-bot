@@ -104,26 +104,29 @@ bot.command("defaultPrompt", (ctx) => {
   ctx.reply("Установлен промпт по умолчанию: " + openai.prompt);
 });
 
-setInterval(async () => {
-  if (chatId !== "" || msg.id !== "") {
-    news = await pars.getPost();
-    post = await openai.generatePost(news);
-    if (news.media) {
-      const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
-        caption: `${post}\n\nИсточник: ${news.url}`,
-        reply_markup: getMainMenu().reply_markup,
-      });
-      msg.id = msgId;
-    } else {
-      const { msgId } = bot.telegram.sendMessage(
-        chatId,
-        `${post}\n\nИсточник: ${news.url}`,
-        getMainMenu()
-      );
-      msg.id = msgId;
+const repeatMsg = async () => {
+  setInterval(async () => {
+    if (chatId !== "" || msg.id !== "") {
+      news = await pars.getPost();
+      post = await openai.generatePost(news);
+      if (news.media) {
+        const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
+          caption: `${post}\n\nИсточник: ${news.url}`,
+          reply_markup: getMainMenu().reply_markup,
+        });
+        msg.id = msgId;
+      } else {
+        const { msgId } = bot.telegram.sendMessage(
+          chatId,
+          `${post}\n\nИсточник: ${news.url}`,
+          getMainMenu()
+        );
+        msg.id = msgId;
+      }
     }
-  }
-}, 86400000); // 86400000 - сутки
+  }, 86400000);
+}; // 86400000 - сутки
+repeatMsg();
 
 bot.launch();
 
