@@ -4,120 +4,228 @@ import { JSDOM } from "jsdom";
 
 class Pars {
   async getPost() {
-    const treds = ["technology", "business"];
-    const randomNum = Math.floor(Math.random() * 2);
+    const rndmN = Math.floor(Math.random() * 5);
 
-    const post = await fetch(
-      `https://api.nytimes.com/svc/news/v3/content/all/${
-        treds[randomNum]
-      }.json?api-key=${config.get("NYT_KEY")}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const randomNum = Math.floor(Math.random() * 6);
-        return data.results[randomNum];
-      })
-      .catch((e) => console.log(e));
+    if (rndmN === 0) {
+      const url = "https://www.socialmediatoday.com";
 
-    return {
-      title: post.title,
-      description: post.abstract,
-      url: post.url,
-      media: post.multimedia ? post.multimedia[2] : null,
-    };
-  }
+      const postUrl = await axios.get(url).then((res) => {
+        const randomNum = Math.floor(Math.random() * 5);
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
 
-  async getNewPost() {
-    let post = {};
-    const rndmN = Math.round(Math.random());
+        const news = dom.window.document
+          .querySelectorAll(".top-stories ol")[0]
+          .querySelectorAll("li h3 a")
+          [randomNum].getAttribute("href");
 
-    switch (rndmN) {
-      case 0:
-        const habrPost = await axios
-          .get("https://habr.com/ru/flows/marketing/articles/")
-          .then((res) => {
-            const randomNum = Math.floor(Math.random() * 10);
-            const curPage = res.data;
-            const dom = new JSDOM(curPage);
+        return news;
+      });
 
-            const postContainer = dom.window.document.querySelectorAll(
-              ".tm-articles-list__item"
-            );
+      const post = await axios.get(url + postUrl).then((res) => {
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
 
-            const titleElement =
-              postContainer[randomNum].querySelector(".tm-title_h2");
+        const title = dom.window.document.querySelectorAll(
+          ".display-heading-04"
+        )[0].textContent;
 
-            const descriptionElement = postContainer[randomNum].querySelector(
-              ".article-formatted-body"
-            );
+        const descriptionParagraphs = dom.window.document.querySelectorAll(
+          ".article-body p span span span"
+        );
+        let description = "";
+        for (let i = descriptionParagraphs.length - 1; i >= 0; i--) {
+          description += ` ${descriptionParagraphs[i].textContent}`;
+        }
 
-            const url = postContainer[randomNum]
-              .querySelector(".tm-article-snippet__readmore")
-              .getAttribute("href");
+        const img = dom.window.document
+          .querySelectorAll(".article-body")[0]
+          .querySelectorAll("img")[0]
+          .getAttribute("src");
 
-            const img = postContainer[randomNum].querySelector(
-              ".tm-article-snippet__lead-image"
-            );
-            return {
-              title: titleElement.textContent,
-              description: descriptionElement.textContent,
-              url: "https://habr.com" + url,
-              media: img ? img.getAttribute("src") : null,
-            };
-          });
+        return {
+          title,
+          description,
+          url: url + postUrl,
+          media: img ? url + img : null,
+        };
+      });
 
-        post = habrPost;
-        break;
+      return post;
+    } else if (rndmN === 1) {
+      const url = "https://www.marketingdive.com";
 
-      case 1:
-        const treds = [
-          "artificial-intelligence",
-          "apps-and-software",
-          "cryptocurrency",
-          "careers",
-        ];
+      const postUrl = await axios.get(url).then((res) => {
         const randomNum = Math.floor(Math.random() * 4);
-        const res = await axios
-          .get(`https://mashable.com/category/${treds[randomNum]}`)
-          .then((res) => {
-            const curPage = res.data;
-            const dom = new JSDOM(curPage);
-            const elements = dom.window.document.querySelector(
-              "body > main > section > section > div"
-            );
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
 
-            const randomNum = Math.floor(Math.random() * 25) * 3;
+        const news = dom.window.document
+          .querySelectorAll(".sidebar-box-list")[0]
+          .querySelectorAll("li div")
+          [randomNum].querySelectorAll("a")[0]
+          .getAttribute("href");
 
-            const article = elements
-              .getElementsByClassName("w-full")
-              [randomNum].querySelectorAll("div > div > a")[0];
+        return news;
+      });
 
-            const description = elements
-              .getElementsByClassName("w-full")
-              [randomNum].getElementsByClassName("hidden")[0];
+      const post = await axios.get(url + postUrl).then((res) => {
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
 
-            const url = elements
-              .getElementsByClassName("w-full")
-              [randomNum].querySelectorAll("div > a")[0]
-              .getAttribute("href");
+        const title = dom.window.document.querySelectorAll(
+          ".display-heading-04"
+        )[0].textContent;
 
-            const img = elements
-              .getElementsByClassName("w-full")
-              [randomNum].querySelectorAll("div > a > div")[0]
-              .querySelector("img")
-              .getAttribute("src");
+        const descriptionParagraphs =
+          dom.window.document.querySelectorAll(".article-body p");
+        let description = "";
+        for (let i = descriptionParagraphs.length - 1; i >= 0; i--) {
+          description += ` ${descriptionParagraphs[i].textContent}`;
+        }
 
-            return {
-              title: article.textContent.trim(),
-              description: description.textContent,
-              url: "https://mashable.com" + url,
-              media: img,
-            };
-          });
-        post = res;
-        break;
+        const img = dom.window.document
+          .querySelectorAll(".figure_content")[0]
+          .querySelectorAll("img")[0]
+          .getAttribute("src");
+
+        return {
+          title,
+          description,
+          url: url + postUrl,
+          media: img ? url + img : null,
+        };
+      });
+
+      return post;
+    } else if (rndmN === 2) {
+      const url = "https://www.marketingweek.com";
+      let img;
+
+      const postUrl = await axios.get(url).then((res) => {
+        const randomNum = Math.floor(Math.random() * 6);
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+        const news = dom.window.document
+          .querySelectorAll(
+            "article:not(.sponsor-subscriber-exclusive) .hentry-title a"
+          )
+          [randomNum].getAttribute("href");
+
+        img = dom.window.document.querySelectorAll(
+          "article:not(.sponsor-subscriber-exclusive) .thumb a img"
+        )[randomNum];
+
+        return news;
+      });
+
+      const post = await axios.get(postUrl).then((res) => {
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+
+        const title = dom.window.document.querySelectorAll(
+          ".article-header .page-title"
+        )[0].textContent;
+
+        const descriptionParagraphs =
+          dom.window.document.querySelectorAll(".content p");
+        let description = "";
+        for (let i = descriptionParagraphs.length - 1; i >= 0; i--) {
+          description += ` ${descriptionParagraphs[i].textContent}`;
+        }
+
+        if (!img) {
+          img = dom.window.document.querySelectorAll(".content figure  img")[0];
+        }
+
+        return {
+          title,
+          description,
+          url: postUrl,
+          media: img ? img.getAttribute("src") : null,
+        };
+      });
+
+      return post;
+    } else if (rndmN === 3) {
+      const url = "https://adindex.ru/news/marketing";
+
+      const postUrl = await axios.get(url).then((res) => {
+        const randomNum = Math.floor(Math.random() * 3);
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+        const news = dom.window.document
+          .querySelectorAll(".newsfeed__list-item-title a")
+          [randomNum].getAttribute("href")
+          .replace("/news/marketing", "");
+
+        return news;
+      });
+
+      const post = await axios.get(url + postUrl).then((res) => {
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+
+        const title =
+          dom.window.document.querySelectorAll(".page-title")[0].textContent;
+
+        const descriptionParagraphs =
+          dom.window.document.querySelectorAll(".news-text p");
+        let description = "";
+        for (let i = descriptionParagraphs.length - 1; i >= 0; i--) {
+          description += ` ${descriptionParagraphs[i].textContent}`;
+        }
+
+        return {
+          title,
+          description,
+          url: url + postUrl,
+          media: null,
+        };
+      });
+
+      return post;
+    } else if (rndmN === 4) {
+      const url = "https://www.forbes.ru";
+
+      const postUrl = await axios.get(url + "/tegi/marketing").then((res) => {
+        const randomNum = Math.floor(Math.random() * 3);
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+        const news = dom.window.document.body
+          .querySelectorAll(".Sa7ru")
+          [randomNum].querySelectorAll("a")[1]
+          .getAttribute("href");
+
+        return news;
+      });
+
+      const post = await axios.get(url + postUrl).then((res) => {
+        const curPage = res.data;
+        const dom = new JSDOM(curPage);
+
+        const title =
+          dom.window.document.querySelectorAll(".T16gd")[0].textContent;
+
+        const descriptionParagraphs =
+          dom.window.document.querySelectorAll(".CFaZ3 p");
+        let description = "";
+        for (let i = descriptionParagraphs.length - 1; i >= 0; i--) {
+          description += ` ${descriptionParagraphs[i].textContent}`;
+        }
+
+        const img = dom.window.document.querySelectorAll(".Dzdg3 div  img")[0];
+
+        return {
+          title,
+          description,
+          url: url + postUrl,
+          media: img ? img.getAttribute("src") : null,
+        };
+      });
+
+      return post;
     }
-    return post;
   }
 }
 

@@ -74,7 +74,7 @@ bot.action("decline", async (ctx) => {
 
 bot.action("new", async (ctx) => {
   ctx.deleteMessage(msg.id);
-  news = await pars.getNewPost();
+  news = await pars.getPost();
   post = await openai.generatePost(news);
   if (news.media) {
     const { msgId } = bot.telegram.sendPhoto(chatId, news.media, {
